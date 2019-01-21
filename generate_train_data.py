@@ -26,6 +26,7 @@ def run():
     paused = False
     delay = {True: 0, False: 1}
     count = 0
+    wasted = 0
     print("Entering main Loop.")
 
     datum = op.Datum()
@@ -33,7 +34,8 @@ def run():
     while True:
         try:
             _, frame = cap.read()
-
+            if frame is None:
+                break
         except Exception as e:
             print("Failed to grab", e)
             break
@@ -50,23 +52,22 @@ def run():
 
         if persons is None:
             print("No Person")
+            wasted+=1
             continue
         try:
             if persons is not None and len(persons) > 1:
                 print("Person > 1 ", persons[0].shape)
+                wasted+=1
                 continue
         except TypeError:
+            wasted+=1
             continue
 
         gray = cv2.cvtColor(datum.cvOutputData-datum.cvInputData, cv2.COLOR_RGB2GRAY)
         ret, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)
         cv2.imshow("OpenPose result", binary)
         count += 1
-        print(count)
-        #if count < 155 or (count > 855 and count < 1255) or (count > 1745 and count < 1775) or (count > 2225 and count < 2265) or (count > 2535 and count < 2915):
-        #    continue
-        #if count > 2405:
-        #    break
+        print("count : ", count, " / ","wasted : ", wasted)
         cv2.imwrite("original/{}.png".format(count), datum.cvOutputData)
         cv2.imwrite("landmarks/{}.png".format(count), binary)
 
@@ -85,6 +86,4 @@ if __name__ == '__main__':
         os.makedirs(os.path.join('./', 'original'))
     if not os.path.exists(os.path.join('./', 'landmarks')):
         os.makedirs(os.path.join('./', 'landmarks'))
-    # os.makedirs('original', exist_ok=True)
-    # os.makedirs('landmarks', exist_ok=True)
     run()
