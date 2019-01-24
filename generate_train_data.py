@@ -15,6 +15,7 @@ def run():
     params["model_folder"] = OPENPOSE_ROOT + os.sep + "models" + os.sep
     params["face"] = True
     params["hand"] = True
+    params["disable_blending"] = False
 
     #op = OP.OpenPose((656, 368), (368, 368), (1280, 720), "COCO", OPENPOSE_ROOT + os.sep + "models" + os.sep, 0,
     #                  False, OP.OpenPose.ScaleMode.ZeroToOne, with_face, with_hands)
@@ -63,20 +64,19 @@ def run():
             wasted+=1
             continue
 
-        gray = cv2.cvtColor(datum.cvOutputData-datum.cvInputData, cv2.COLOR_RGB2GRAY)
-        ret, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)
-        cv2.imshow("OpenPose result", binary)
+        cv2.imshow("OpenPose result", datum.cvOutputData)
         count += 1
         print("count : ", count, " / ","wasted : ", wasted)
-        cv2.imwrite("original/{}.png".format(count), datum.cvOutputData)
-        cv2.imwrite("landmarks/{}.png".format(count), binary)
+        cv2.imwrite("original/{}.png".format(count), datum.cvInputData)
+        cv2.imwrite("landmarks/{}.png".format(count), datum.cvOutputData)
 
+        '''
         key = cv2.waitKey(delay[paused])
         if key & 255 == ord('p'):
             paused = not paused
-
         if key & 255 == ord('q'):
             break
+        '''
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
