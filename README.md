@@ -33,21 +33,18 @@ python generate_train_data.py --file My_Video.mp4
 ```
 
 This operation will create `original` and `landmarks`.
-
-#### 2. Train Model
+Then follow instructions below to refine the data for pix2pix.
 
 ```
-# Clone the repo from Christopher Hesse's pix2pix TensorFlow implementation
-git clone https://github.com/affinelayer/pix2pix-tensorflow.git
+# Clone pix2pix TensorFlow implementation.
+# Recommend to use this repo in order to proceed.
+git clone https://github.com/YongWookHa/pix2pix-tensorflow
 
 # Move the original and landmarks folder into the pix2pix-tensorflow folder
 mv pose2pose/landmarks pose2pose/original pix2pix-tensorflow/photos_pose
 
 # Go into the pix2pix-tensorflow folder
 cd pix2pix-tensorflow/
-
-# Reset to april version
-git reset --hard d6f8e4ce00a1fd7a96a72ed17366bfcb207882c7
 
 # Resize original images
 python tools/process.py \
@@ -68,21 +65,85 @@ python tools/process.py \
   --operation combine \
   --output_dir photos_pose/combined
   
-# Split into train/val set
-python tools/split.py \
-  --dir photos_pose/combined
-  
+```
+
+#### 2. Train Model
+
+In pix2pix-tensorflow folder,
+
+```
 # Train the model on the data
 python pix2pix.py \
   --mode train \
   --output_dir pose2pose-model \
   --max_epochs 1000 \
-  --input_dir photos_pose/combined/train \
+  --input_dir photos_pose/combined/ \
   --which_direction AtoB
+  --no_flip
 ```
 
 Trainning takes quite a lot of time. Recommend to use gpu.
 
-#### 3. Export Model
+#### 3. Test Model
 
-2019-01-22 : on writting.
+For test the model, you need a reference video to imitate(target video).
+With the target video, generate landmark data.
+
+```
+python generate_train_data.py --file Target_Video.mp4
+```
+
+These landmark and original images of target video will be the input data for pix2pix-tensorflow.
+Make `photos_pose_test/result` directory in pix2pix-tensorflow folder.
+
+```
+# Move the landmarks folder into the pix2pix-tensorflow folder
+mv pose2pose/landmarks pose2pose/original pix2pix-tensorflow/photos_pose_test
+
+# Go into the pix2pix-tensorflow folder
+cd pix2pix-tensorflow/
+
+# Resize original images
+python tools/process.py \
+  --input_dir photos_pose_test/original \
+  --operation resize \
+  --output_dir photos_pose_test/original_resized
+  
+# Resize landmark images
+python tools/process.py \
+  --input_dir photos_pose_test/landmarks \
+  --operation resize \
+  --output_dir photos_pose_test/landmarks_resized
+  
+# Combine both resized original and landmark images
+python tools/process.py \
+  --input_dir photos_pose_test/landmarks_resized \
+  --b_dir photos_pose_test/original_resized \
+  --operation combine \
+  --output_dir photos_pose_test/combined
+
+# Test the model on the data
+python pix2pix.py \
+  --mode test \
+  --output_dir photos_pose_test/result \
+  --input_dir photos_pose_test/combined \
+  --checkpoint pose2pose-model
+```
+
+#### 4. Convert still images to video
+
+```
+# Move '*-outputs.png' of the generated images to pose2pose folder
+mv pix2pix-tensorflow/photos_pose_test/result pose2pose/
+
+# Convert the generated images to video
+python convert_to_video.py \
+  --input-folder ./result \
+  --output-folder ./ \
+  --frame TARGET_VIDEO_FRAME \
+  --frame-size TARGET_VIDEO_FRAME_SIZE
+```
+
+After above commands, you will get the style transferred video `Generated_Video.avi`.
+
+Enjoy.
