@@ -1,10 +1,13 @@
 
 # pose2pose
 
+*Click the image below and watch the demo.*
+
+[![pose2pose-demo](http://img.youtube.com/vi/Nc0LNrzDeXQ/0.jpg)](https://youtu.be/Nc0LNrzDeXQ)
+
 This is [\<everybody  dance  now\>](https://arxiv.org/pdf/1808.07371.pdf) python implementation
 
 pose2pose is [pix2pix](https://github.com/affinelayer/pix2pix-tensorflow) based video style(pose) tranfer.
-
 It learns poses from a video, and translates your pose to the trained pose.  
 
 This repository is based on [GordonRen's repository](https://github.com/GordonRen/pose2pose). This one does not use [PyOpenPose](https://github.com/FORTH-ModelBasedTracker/PyOpenPose/issues/10) which is custom python wrapper of [openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose). So it's easier to be built in Windows system.
