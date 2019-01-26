@@ -144,7 +144,6 @@ python convert_to_video.py \
   --input-folder ./result \
   --output-folder ./ \
   --frame TARGET_VIDEO_FRAME \
-  --frame-size TARGET_VIDEO_FRAME_SIZE
 ```
 
 After above commands, you will get the style transferred video `Generated_Video.avi`.
